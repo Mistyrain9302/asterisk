@@ -39,3 +39,21 @@ ifneq ($(findstring $(OSARCH), mingw32 cygwin ),)
   LIBS+= -lres_ael_share.so -lres_monitor.so -lres_speech.so
   LIBS+= -lres_smdi.so
 endif
+
+# Boost 라이브러리 경로 추가
+BOOST_INCLUDES := -I/usr/local/include
+BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lssl -lcrypto
+
+# CXX 변수를 g++로 설정
+CXX := g++
+CXXFLAGS := -std=c++11
+
+# websocket_client.o를 추가합니다.
+websocket_client.o: websocket_client.cpp websocket_client.h
+	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
+
+app_mixmonitor.o: websocket_client.o
+
+# 타겟 파일 링크 시 Boost 라이브러리 추가
+$(TARGET): $(OBJS)
+	$(CXX) $(LDFLAGS) $(BOOST_LIBS) -o $@ $^

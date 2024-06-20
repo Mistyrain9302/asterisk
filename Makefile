@@ -1149,3 +1149,18 @@ FORCE:
 
 # This only stops targets within the root Makefile from building in parallel.
 .NOTPARALLEL:
+
+# Boost 라이브러리 경로 추가
+BOOST_INCLUDES := -I/usr/local/include
+BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lssl -lcrypto
+
+# C++ 표준 지정
+CXX := g++
+CXXFLAGS := -std=c++11
+
+# websocket_client.o 규칙 추가
+websocket_client.o: websocket_client.cpp websocket_client.h
+	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
+
+$(TARGET): $(OBJS)
+	$(CXX) $(LDFLAGS) $(BOOST_LIBS) -o $@ $^
