@@ -9,6 +9,8 @@
 # the GNU General Public License
 #
 
+# 앱 디렉토리의 Makefile 수정
+
 -include $(ASTTOPDIR)/menuselect.makeopts $(ASTTOPDIR)/menuselect.makedeps
 
 MODULE_PREFIX=app
@@ -52,7 +54,9 @@ CXXFLAGS := -std=c++11
 websocket_client.o: websocket_client.cpp websocket_client.h
 	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
 
-app_mixmonitor.o: websocket_client.o
+app_websocket.o: websocket_client.o
+
+app_mixmonitor.o: app_websocket.o
 
 # 타겟 파일 링크 시 Boost 라이브러리 추가
 $(TARGET): $(OBJS)

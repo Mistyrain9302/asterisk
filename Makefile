@@ -1154,13 +1154,18 @@ FORCE:
 BOOST_INCLUDES := -I/usr/local/include
 BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lssl -lcrypto
 
-# C++ 표준 지정
+# CXX 변수를 g++로 설정
 CXX := g++
 CXXFLAGS := -std=c++11
+
+# OBJS 정의 부분에 추가
+OBJS = \
+    websocket_client.o 
 
 # websocket_client.o 규칙 추가
 websocket_client.o: websocket_client.cpp websocket_client.h
 	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
 
+# 타겟 파일 링크 시 Boost 라이브러리 추가
 $(TARGET): $(OBJS)
 	$(CXX) $(LDFLAGS) $(BOOST_LIBS) -o $@ $^
