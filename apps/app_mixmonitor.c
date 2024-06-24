@@ -398,7 +398,15 @@ struct mixmonitor_ds {
 	char *beep_id;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int send_to_websocket(const char *data, size_t len, bool is_rx);
+
+#ifdef __cplusplus
+}
+#endif
 
 /*!
  * \internal
@@ -788,53 +796,6 @@ static void *mixmonitor_thread(void *obj)
 
     ast_module_unref(ast_module_info->self);
     return NULL;
-}
-
-static int setup_mixmonitor_ds(struct mixmonitor *mixmonitor, struct ast_channel *chan, char **datastore_id, const char *beep_id)
-{
-	struct ast_datastore *datastore = NULL;
-	struct mixmonitor_ds *mixmonitor_ds;
-
-	if (!(mixmonitor_ds = ast_calloc(1, sizeof(*mixmonitor_ds)))) {
-		return -1;
-	}
-
-	if (ast_asprintf(datastore_id, "%p", mixmonitor_ds) == -1) {
-		ast_log(LOG_ERROR, "Failed to allocate memory for MixMonitor ID.\n");
-		ast_free(mixmonitor_ds);
-		return -1;
-	}
-
-	ast_mutex_init(&mixmonitor_ds->lock);
-	ast_cond_init(&mixmonitor_ds->destruction_condition, NULL);
-
-	if (!(datastore = ast_datastore_alloc(&mixmonitor_ds_info, *datastore_id))) {
-		ast_mutex_destroy(&mixmonitor_ds->lock);
-		ast_cond_destroy(&mixmonitor_ds->destruction_condition);
-		ast_free(mixmonitor_ds);
-		return -1;
-	}
-
-	if (ast_test_flag(mixmonitor, MUXFLAG_BEEP_START)) {
-		ast_autochan_channel_lock(mixmonitor->autochan);
-		ast_stream_and_wait(mixmonitor->autochan->chan, "beep", "");
-		ast_autochan_channel_unlock(mixmonitor->autochan);
-	}
-
-	mixmonitor_ds->samp_rate = 8000;
-	mixmonitor_ds->audiohook = &mixmonitor->audiohook;
-	mixmonitor_ds->filename = ast_strdup(mixmonitor->filename);
-	if (!ast_strlen_zero(beep_id)) {
-		mixmonitor_ds->beep_id = ast_strdup(beep_id);
-	}
-	datastore->data = mixmonitor_ds;
-
-	ast_channel_lock(chan);
-	ast_channel_datastore_add(chan, datastore);
-	ast_channel_unlock(chan);
-
-	mixmonitor->mixmonitor_ds = mixmonitor_ds;
-	return 0;
 }
 
 static int launch_monitor_thread(struct ast_channel *chan, const char *filename,

@@ -2,13 +2,21 @@
 #include <asterisk/module.h>
 #include <asterisk/logger.h>
 #include <asterisk/channel.h>
-#include <stddef.h>  // size_t 정의를 위한 헤더 파일 추가
+#include <stddef.h> // size_t 정의를 위한 헤더 파일 추가
 #include <stdbool.h> // bool 정의를 위한 헤더 파일 추가
 
 // C++ 함수 선언
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void websocket_client_connect(void);
 void websocket_client_send(const char *data, size_t len, bool is_rx);
 void websocket_client_close(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 static int init_websocket(void) {
     websocket_client_connect();
