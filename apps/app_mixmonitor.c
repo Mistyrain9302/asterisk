@@ -708,11 +708,11 @@ static void *mixmonitor_thread(void *obj)
 
             // 프레임을 웹소켓으로 전송
             if (fr_read) {
-                send_to_websocket((const char *)fr_read->data, fr_read->datalen, true);
+                send_to_websocket((const char *)fr_read->data, fr_read->datalen, 1); // true 대신 1 사용
             }
 
             if (fr_write) {
-                send_to_websocket((const char *)fr_write->data, fr_write->datalen, false);
+                send_to_websocket((const char *)fr_write->data, fr_write->datalen, 0); // false 대신 0 사용
             }
 
             ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
