@@ -2,6 +2,7 @@
 #include <asterisk/module.h>
 #include <asterisk/logger.h>
 #include <asterisk/channel.h>
+#include <stddef.h> // size_t 정의를 위한 헤더 파일 추가
 
 // C++ 함수 선언
 void websocket_client_connect();
