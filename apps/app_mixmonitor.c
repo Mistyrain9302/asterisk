@@ -58,6 +58,7 @@
 #include "asterisk/mixmonitor.h"
 #include "asterisk/format_cache.h"
 #include "asterisk/beep.h"
+#include <stdbool.h>
 
 /*** DOCUMENTATION
 	<application name="MixMonitor" language="en_US">
@@ -647,59 +648,59 @@ static int mixmonitor_autochan_is_bridged(struct ast_autochan *autochan)
 
 static void *mixmonitor_thread(void *obj)
 {
-	struct mixmonitor *mixmonitor = obj;
-	char *fs_ext = "";
-	char *fs_read_ext = "";
-	char *fs_write_ext = "";
+    struct mixmonitor *mixmonitor = obj;
+    char *fs_ext = "";
+    char *fs_read_ext = "";
+    char *fs_write_ext = "";
 
-	struct ast_filestream **fs = NULL;
-	struct ast_filestream **fs_read = NULL;
-	struct ast_filestream **fs_write = NULL;
+    struct ast_filestream **fs = NULL;
+    struct ast_filestream **fs_read = NULL;
+    struct ast_filestream **fs_write = NULL;
 
-	unsigned int oflags;
-	int errflag = 0;
-	struct ast_format *format_slin;
+    unsigned int oflags;
+    int errflag = 0;
+    struct ast_format *format_slin;
 
-	/* Keep callid association before any log messages */
-	if (mixmonitor->callid) {
-		ast_callid_threadassoc_add(mixmonitor->callid);
-	}
+    /* Keep callid association before any log messages */
+    if (mixmonitor->callid) {
+        ast_callid_threadassoc_add(mixmonitor->callid);
+    }
 
-	ast_verb(2, "Begin MixMonitor Recording %s\n", mixmonitor->name);
+    ast_verb(2, "Begin MixMonitor Recording %s\n", mixmonitor->name);
 
-	fs = &mixmonitor->mixmonitor_ds->fs;
-	fs_read = &mixmonitor->mixmonitor_ds->fs_read;
-	fs_write = &mixmonitor->mixmonitor_ds->fs_write;
+    fs = &mixmonitor->mixmonitor_ds->fs;
+    fs_read = &mixmonitor->mixmonitor_ds->fs_read;
+    fs_write = &mixmonitor->mixmonitor_ds->fs_write;
 
-	ast_mutex_lock(&mixmonitor->mixmonitor_ds->lock);
-	mixmonitor_save_prep(mixmonitor, mixmonitor->filename, fs, &oflags, &errflag, &fs_ext);
-	mixmonitor_save_prep(mixmonitor, mixmonitor->filename_read, fs_read, &oflags, &errflag, &fs_read_ext);
-	mixmonitor_save_prep(mixmonitor, mixmonitor->filename_write, fs_write, &oflags, &errflag, &fs_write_ext);
+    ast_mutex_lock(&mixmonitor->mixmonitor_ds->lock);
+    mixmonitor_save_prep(mixmonitor, mixmonitor->filename, fs, &oflags, &errflag, &fs_ext);
+    mixmonitor_save_prep(mixmonitor, mixmonitor->filename_read, fs_read, &oflags, &errflag, &fs_read_ext);
+    mixmonitor_save_prep(mixmonitor, mixmonitor->filename_write, fs_write, &oflags, &errflag, &fs_write_ext);
 
-	format_slin = ast_format_cache_get_slin_by_rate(mixmonitor->mixmonitor_ds->samp_rate);
+    format_slin = ast_format_cache_get_slin_by_rate(mixmonitor->mixmonitor_ds->samp_rate);
 
-	ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
+    ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
 
-	/* The audiohook must enter and exit the loop locked */
-	ast_audiohook_lock(&mixmonitor->audiohook);
-	while (mixmonitor->audiohook.status == AST_AUDIOHOOK_STATUS_RUNNING && !mixmonitor->mixmonitor_ds->fs_quit) {
-		struct ast_frame *fr = NULL;
-		struct ast_frame *fr_read = NULL;
-		struct ast_frame *fr_write = NULL;
+    /* The audiohook must enter and exit the loop locked */
+    ast_audiohook_lock(&mixmonitor->audiohook);
+    while (mixmonitor->audiohook.status == AST_AUDIOHOOK_STATUS_RUNNING && !mixmonitor->mixmonitor_ds->fs_quit) {
+        struct ast_frame *fr = NULL;
+        struct ast_frame *fr_read = NULL;
+        struct ast_frame *fr_write = NULL;
 
-		if (!(fr = ast_audiohook_read_frame_all(&mixmonitor->audiohook, SAMPLES_PER_FRAME, format_slin,
-						&fr_read, &fr_write))) {
-			ast_audiohook_trigger_wait(&mixmonitor->audiohook);
+        if (!(fr = ast_audiohook_read_frame_all(&mixmonitor->audiohook, SAMPLES_PER_FRAME, format_slin,
+                        &fr_read, &fr_write))) {
+            ast_audiohook_trigger_wait(&mixmonitor->audiohook);
 
-			if (mixmonitor->audiohook.status != AST_AUDIOHOOK_STATUS_RUNNING) {
-				break;
-			}
-			continue;
-		}
+            if (mixmonitor->audiohook.status != AST_AUDIOHOOK_STATUS_RUNNING) {
+                break;
+            }
+            continue;
+        }
 
-		/* audiohook lock is not required for the next block.
-		 * Unlock it, but remember to lock it before looping or exiting */
-		ast_audiohook_unlock(&mixmonitor->audiohook);
+        /* audiohook lock is not required for the next block.
+         * Unlock it, but remember to lock it before looping or exiting */
+        ast_audiohook_unlock(&mixmonitor->audiohook);
 
         if (!ast_test_flag(mixmonitor, MUXFLAG_BRIDGED)
             || mixmonitor_autochan_is_bridged(mixmonitor->autochan)) {
@@ -716,77 +717,77 @@ static void *mixmonitor_thread(void *obj)
 
             ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
         }
-		/* All done! free it. */
-		if (fr) {
-			ast_frame_free(fr, 0);
-		}
-		if (fr_read) {
-			ast_frame_free(fr_read, 0);
-		}
-		if (fr_write) {
-			ast_frame_free(fr_write, 0);
-		}
+        /* All done! free it. */
+        if (fr) {
+            ast_frame_free(fr, 0);
+        }
+        if (fr_read) {
+            ast_frame_free(fr_read, 0);
+        }
+        if (fr_write) {
+            ast_frame_free(fr_write, 0);
+        }
 
-		fr = NULL;
-		fr_write = NULL;
-		fr_read = NULL;
+        fr = NULL;
+        fr_write = NULL;
+        fr_read = NULL;
 
-		ast_audiohook_lock(&mixmonitor->audiohook);
-	}
+        ast_audiohook_lock(&mixmonitor->audiohook);
+    }
 
-	ast_audiohook_unlock(&mixmonitor->audiohook);
+    ast_audiohook_unlock(&mixmonitor->audiohook);
 
-	if (ast_test_flag(mixmonitor, MUXFLAG_BEEP_STOP)) {
-		ast_autochan_channel_lock(mixmonitor->autochan);
-		ast_stream_and_wait(mixmonitor->autochan->chan, "beep", "");
-		ast_autochan_channel_unlock(mixmonitor->autochan);
-	}
+    if (ast_test_flag(mixmonitor, MUXFLAG_BEEP_STOP)) {
+        ast_autochan_channel_lock(mixmonitor->autochan);
+        ast_stream_and_wait(mixmonitor->autochan->chan, "beep", "");
+        ast_autochan_channel_unlock(mixmonitor->autochan);
+    }
 
-	ast_autochan_destroy(mixmonitor->autochan);
+    ast_autochan_destroy(mixmonitor->autochan);
 
-	/* Datastore cleanup.  close the filestream and wait for ds destruction */
-	ast_mutex_lock(&mixmonitor->mixmonitor_ds->lock);
-	mixmonitor_ds_close_fs(mixmonitor->mixmonitor_ds);
-	if (!mixmonitor->mixmonitor_ds->destruction_ok) {
-		ast_cond_wait(&mixmonitor->mixmonitor_ds->destruction_condition, &mixmonitor->mixmonitor_ds->lock);
-	}
-	ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
+    /* Datastore cleanup.  close the filestream and wait for ds destruction */
+    ast_mutex_lock(&mixmonitor->mixmonitor_ds->lock);
+    mixmonitor_ds_close_fs(mixmonitor->mixmonitor_ds);
+    if (!mixmonitor->mixmonitor_ds->destruction_ok) {
+        ast_cond_wait(&mixmonitor->mixmonitor_ds->destruction_condition, &mixmonitor->mixmonitor_ds->lock);
+    }
+    ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
 
-	/* kill the audiohook */
-	destroy_monitor_audiohook(mixmonitor);
+    /* kill the audiohook */
+    destroy_monitor_audiohook(mixmonitor);
 
-	if (mixmonitor->post_process) {
-		ast_verb(2, "Executing [%s]\n", mixmonitor->post_process);
-		ast_safe_system(mixmonitor->post_process);
-	}
+    if (mixmonitor->post_process) {
+        ast_verb(2, "Executing [%s]\n", mixmonitor->post_process);
+        ast_safe_system(mixmonitor->post_process);
+    }
 
-	ast_verb(2, "End MixMonitor Recording %s\n", mixmonitor->name);
-	ast_test_suite_event_notify("MIXMONITOR_END", "File: %s\r\n", mixmonitor->filename);
+    ast_verb(2, "End MixMonitor Recording %s\n", mixmonitor->name);
+    ast_test_suite_event_notify("MIXMONITOR_END", "File: %s\r\n", mixmonitor->filename);
 
-	if (!AST_LIST_EMPTY(&mixmonitor->recipient_list)) {
-		if (ast_strlen_zero(fs_ext)) {
-			ast_log(LOG_ERROR, "No file extension set for Mixmonitor %s. Skipping copy to voicemail.\n",
-				mixmonitor -> name);
-		} else {
-			ast_verb(3, "Copying recordings for Mixmonitor %s to voicemail recipients\n", mixmonitor->name);
-			copy_to_voicemail(mixmonitor, fs_ext, mixmonitor->filename);
-		}
-		if (!ast_strlen_zero(fs_read_ext)) {
-			ast_verb(3, "Copying read recording for Mixmonitor %s to voicemail recipients\n", mixmonitor->name);
-			copy_to_voicemail(mixmonitor, fs_read_ext, mixmonitor->filename_read);
-		}
-		if (!ast_strlen_zero(fs_write_ext)) {
-			ast_verb(3, "Copying write recording for Mixmonitor %s to voicemail recipients\n", mixmonitor->name);
-			copy_to_voicemail(mixmonitor, fs_write_ext, mixmonitor->filename_write);
-		}
-	} else {
-		ast_debug(3, "No recipients to forward monitor to, moving on.\n");
-	}
+    if (!AST_LIST_EMPTY(&mixmonitor->recipient_list)) {
+        if (ast_strlen_zero(fs_ext)) {
+            ast_log(LOG_ERROR, "No file extension set for Mixmonitor %s. Skipping copy to voicemail.\n",
+                mixmonitor -> name);
+        } else {
+            ast_verb(3, "Copying recordings for Mixmonitor %s to voicemail recipients\n", mixmonitor->name);
+            copy_to_voicemail(mixmonitor, fs_ext, mixmonitor->filename);
+        }
+        if (!ast_strlen_zero(fs_read_ext)) {
+            ast_verb(3, "Copying read recording for Mixmonitor %s to voicemail recipients\n", mixmonitor->name);
+            copy_to_voicemail(mixmonitor, fs_read_ext, mixmonitor->filename_read);
+        }
+        if (!ast_strlen_zero(fs_write_ext)) {
+            ast_verb(3, "Copying write recording for Mixmonitor %s to voicemail recipients\n", mixmonitor->name);
+            copy_to_voicemail(mixmonitor, fs_write_ext, mixmonitor->filename_write);
+        }
+    } else {
+        ast_debug(3, "No recipients to forward monitor to, moving on.\n");
+    }
 
-	mixmonitor_free(mixmonitor);
+    mixmonitor_free(mixmonitor);
 
-	ast_module_unref(ast_module_info->self);
-	return NULL;
+    ast_module_unref(ast_module_info->self);
+    return NULL;
 }
 
 static int setup_mixmonitor_ds(struct mixmonitor *mixmonitor, struct ast_channel *chan, char **datastore_id, const char *beep_id)
