@@ -402,7 +402,7 @@ struct mixmonitor_ds {
 extern "C" {
 #endif
 
-int send_to_websocket(const char *data, size_t len, bool is_rx);
+int send_to_websocket(const char *data, size_t len, int is_rx);
 
 #ifdef __cplusplus
 }

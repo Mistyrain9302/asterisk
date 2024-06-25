@@ -5,7 +5,7 @@
 
 extern "C" {
     void websocket_client_connect(void);
-    void websocket_client_send(const char* data, std::size_t len, bool is_rx);
+    void websocket_client_send(const char *data, size_t len, int is_rx);
     void websocket_client_close(void);
 }
 
