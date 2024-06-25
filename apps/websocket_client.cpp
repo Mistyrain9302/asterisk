@@ -28,7 +28,7 @@ extern "C" void websocket_client_connect() {
     }
 }
 
-extern "C" websocket_client_send(const char *data, size_t len, int is_rx) {
+extern "C" void websocket_client_send(const char *data, size_t len, int is_rx) {
     try {
         if (is_rx) {
             ws_rx.write(boost::asio::buffer(data, len));
