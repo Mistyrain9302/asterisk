@@ -58,7 +58,7 @@
 #include "asterisk/mixmonitor.h"
 #include "asterisk/format_cache.h"
 #include "asterisk/beep.h"
-#include <stdbool.h>
+#include <stddef.h>  // size_t 정의를 위한 헤더 파일 추가
 
 /*** DOCUMENTATION
 	<application name="MixMonitor" language="en_US">
@@ -402,7 +402,7 @@ struct mixmonitor_ds {
 extern "C" {
 #endif
 
-int send_to_websocket(const char *data, size_t len, int is_rx);
+int send_to_websocket(const char *data, size_t len, int is_rx); // 함수 선언
 
 #ifdef __cplusplus
 }

@@ -22,7 +22,7 @@ static int init_websocket(void) {
     return AST_MODULE_LOAD_SUCCESS;
 }
 
-static int send_to_websocket(const char *data, size_t len, int is_rx) { // bool 대신 int 사용
+int send_to_websocket(const char *data, size_t len, int is_rx) { // bool 대신 int 사용
     websocket_client_send(data, len, is_rx);
     return 0;
 }
