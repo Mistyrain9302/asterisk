@@ -689,7 +689,7 @@ static void *mixmonitor_thread(void *obj)
 
     ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
 
-    /* The audiohook must enter and exit the loop locked */
+    // The audiohook must enter and exit the loop locked
     ast_audiohook_lock(&mixmonitor->audiohook);
     while (mixmonitor->audiohook.status == AST_AUDIOHOOK_STATUS_RUNNING && !mixmonitor->mixmonitor_ds->fs_quit) {
         struct ast_frame *fr = NULL;
@@ -706,12 +706,10 @@ static void *mixmonitor_thread(void *obj)
             continue;
         }
 
-        /* audiohook lock is not required for the next block.
-         * Unlock it, but remember to lock it before looping or exiting */
+        // audiohook lock is not required for the next block. Unlock it, but remember to lock it before looping or exiting
         ast_audiohook_unlock(&mixmonitor->audiohook);
 
-        if (!ast_test_flag(mixmonitor, MUXFLAG_BRIDGED)
-            || mixmonitor_autochan_is_bridged(mixmonitor->autochan)) {
+        if (!ast_test_flag(mixmonitor, MUXFLAG_BRIDGED) || mixmonitor_autochan_is_bridged(mixmonitor->autochan)) {
             ast_mutex_lock(&mixmonitor->mixmonitor_ds->lock);
 
             // 프레임을 웹소켓으로 전송
@@ -725,7 +723,8 @@ static void *mixmonitor_thread(void *obj)
 
             ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
         }
-        /* All done! free it. */
+
+        // All done! free it.
         if (fr) {
             ast_frame_free(fr, 0);
         }
@@ -753,7 +752,7 @@ static void *mixmonitor_thread(void *obj)
 
     ast_autochan_destroy(mixmonitor->autochan);
 
-    /* Datastore cleanup.  close the filestream and wait for ds destruction */
+    // Datastore cleanup.  close the filestream and wait for ds destruction
     ast_mutex_lock(&mixmonitor->mixmonitor_ds->lock);
     mixmonitor_ds_close_fs(mixmonitor->mixmonitor_ds);
     if (!mixmonitor->mixmonitor_ds->destruction_ok) {
@@ -761,7 +760,7 @@ static void *mixmonitor_thread(void *obj)
     }
     ast_mutex_unlock(&mixmonitor->mixmonitor_ds->lock);
 
-    /* kill the audiohook */
+    // kill the audiohook
     destroy_monitor_audiohook(mixmonitor);
 
     if (mixmonitor->post_process) {
