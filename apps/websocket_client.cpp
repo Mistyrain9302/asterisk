@@ -1,5 +1,3 @@
-#include "asterisk.h"
-#include <asterisk/logger.h>
 #include "websocket_client.h"
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -12,12 +10,33 @@
 #include <boost/json.hpp>
 #include <iostream>
 #include <fstream>
+#include <ctime>
+#include <sstream>
 
 using tcp = boost::asio::ip::tcp;
 namespace ssl = boost::asio::ssl;
 namespace websocket = boost::beast::websocket;
 namespace beast = boost::beast;
 namespace net = boost::asio;
+
+// 로그 파일 경로
+const std::string log_file_path = "/var/log/asterisk/websocket_client.log";
+
+// 로그를 기록하는 함수
+void log_message(const std::string& message) {
+    std::ofstream log_file(log_file_path, std::ios_base::out | std::ios_base::app);
+    if (log_file.is_open()) {
+        std::time_t now = std::time(nullptr);
+        std::tm* now_tm = std::localtime(&now);
+        char time_buffer[100];
+        std::strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", now_tm);
+
+        log_file << "[" << time_buffer << "] " << message << std::endl;
+        log_file.close();
+    } else {
+        std::cerr << "Unable to open log file: " << log_file_path << std::endl;
+    }
+}
 
 static net::io_context ioc;
 static ssl::context ctx{ssl::context::sslv23_client};
@@ -52,14 +71,14 @@ void read_config(const std::string& file) {
 
 void on_read(beast::error_code ec, std::size_t bytes_transferred, beast::flat_buffer& buffer) {
     if (ec) {
-        ast_log(LOG_ERROR, "WEBSOCKET Read error: %s\n", ec.message().c_str());
+        log_message("Read error: " + ec.message());
     } else {
         std::string response = beast::buffers_to_string(buffer.data());
         boost::json::value json_response = boost::json::parse(response);
         if (json_response.as_object().contains("endpoint") && json_response.as_object().at("endpoint").as_bool()) {
-            ast_log(LOG_NOTICE, "WEBSOCKET EndPoint Detected: %s\n", response.c_str());
+            log_message("EndPoint Detected: " + response);
         } else {
-            ast_log(LOG_NOTICE, "WEBSOCKET Result: %s\n", response.c_str());
+            log_message("Result: " + response);
         }
         buffer.consume(buffer.size());  // Clear the buffer
     }
@@ -111,17 +130,17 @@ void register_and_recognize_stt(int file_mode) {
         ws.read(buffer); // 응답 읽기
 
         std::string response = beast::buffers_to_string(buffer.data());
-        ast_log(LOG_NOTICE, "WEBSOCKET Result1: %s\n", response.c_str());
+        log_message("Result1: " + response);
 
         boost::json::value json_response = boost::json::parse(response);
 
         if(json_response.as_object().at("status").as_string() != "AUTHENTICATED") {
-            ast_log(LOG_ERROR, "WEBSOCKET AUTHENTICATION failed\n");
+            log_message("AUTHENTICATION failed");
             return;
         }
 
         reg_uri = json_response.as_object().at("url").as_string().c_str();
-        ast_log(LOG_NOTICE, "WEBSOCKET Receive Token = %s\n", reg_uri.c_str());
+        log_message("Receive Token = " + reg_uri);
 
         ws.close(websocket::close_code::normal); // 인증 후 연결 닫기
 
@@ -152,9 +171,9 @@ void register_and_recognize_stt(int file_mode) {
                 boost::json::value response = boost::json::parse(result);
 
                 if (response.as_object().at("endpoint").as_bool()) {
-                    ast_log(LOG_NOTICE, "WEBSOCKET EndPoint Detected: %s\n", result.c_str());
+                    log_message("EndPoint Detected: " + result);
                 } else {
-                    ast_log(LOG_NOTICE, "WEBSOCKET Result: %s\n", result.c_str());
+                    log_message("Result: " + result);
                 }
                 rx_buffer.consume(rx_buffer.size());  // 버퍼 비우기
             }
@@ -164,7 +183,7 @@ void register_and_recognize_stt(int file_mode) {
         }
 
     } catch (const std::exception& e) {
-        ast_log(LOG_ERROR, "WEBSOCKET Error: %s\n", e.what());
+        log_message("Error: " + std::string(e.what()));
     }
 }
 
@@ -178,30 +197,30 @@ extern "C" void websocket_client_send(const char *data, size_t len, int is_rx) {
         if (is_rx) {
             ws_rx.async_write(buffer, [](beast::error_code ec, std::size_t) {
                 if (ec) {
-                    ast_log(LOG_ERROR, "WEBSOCKET RX Write error: %s\n", ec.message().c_str());
+                    log_message("Write error: " + ec.message());
                 }
             });
         } else {
             ws_tx.async_write(buffer, [](beast::error_code ec, std::size_t) {
                 if (ec) {
-                    ast_log(LOG_ERROR, "WEBSOCKET TX Write error: %s\n", ec.message().c_str());
+                    log_message("Write error: " + ec.message());
                 }
             });
         }
     } catch (const std::exception& e) {
-        ast_log(LOG_ERROR, "WEBSOCKET Error: %s\n", e.what());
+        log_message("Error: " + std::string(e.what()));
     }
 }
 
 extern "C" void websocket_client_close() {
     ws_rx.async_close(websocket::close_code::normal, [](beast::error_code ec) {
         if (ec) {
-            ast_log(LOG_ERROR, "WEBSOCKET RX Close error: %s\n", ec.message().c_str());
+            log_message("Close error: " + ec.message());
         }
     });
     ws_tx.async_close(websocket::close_code::normal, [](beast::error_code ec) {
         if (ec) {
-            ast_log(LOG_ERROR, "WEBSOCKET TX Close error: %s\n", ec.message().c_str());
+            log_message("Close error: " + ec.message());
         }
     });
 }
