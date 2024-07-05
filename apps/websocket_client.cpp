@@ -1,3 +1,5 @@
+#include "asterisk.h"
+#include <asterisk/logger.h>
 #include "websocket_client.h"
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -50,14 +52,14 @@ void read_config(const std::string& file) {
 
 void on_read(beast::error_code ec, std::size_t bytes_transferred, beast::flat_buffer& buffer) {
     if (ec) {
-        std::cerr << "Read error: " << ec.message() << std::endl;
+        ast_log(LOG_ERROR, "WEBSOCKET Read error: %s\n", ec.message().c_str());
     } else {
         std::string response = beast::buffers_to_string(buffer.data());
         boost::json::value json_response = boost::json::parse(response);
         if (json_response.as_object().contains("endpoint") && json_response.as_object().at("endpoint").as_bool()) {
-            std::cout << "EndPoint Detected: " << response << std::endl;
+            ast_log(LOG_NOTICE, "WEBSOCKET EndPoint Detected: %s\n", response.c_str());
         } else {
-            std::cout << "Result: " << response << std::endl;
+            ast_log(LOG_NOTICE, "WEBSOCKET Result: %s\n", response.c_str());
         }
         buffer.consume(buffer.size());  // Clear the buffer
     }
@@ -109,17 +111,17 @@ void register_and_recognize_stt(int file_mode) {
         ws.read(buffer); // 응답 읽기
 
         std::string response = beast::buffers_to_string(buffer.data());
-        std::cout << "Result1: " << response << std::endl;
+        ast_log(LOG_NOTICE, "WEBSOCKET Result1: %s\n", response.c_str());
 
         boost::json::value json_response = boost::json::parse(response);
 
         if(json_response.as_object().at("status").as_string() != "AUTHENTICATED") {
-            std::cerr << "AUTHENTICATION failed" << std::endl;
+            ast_log(LOG_ERROR, "WEBSOCKET AUTHENTICATION failed\n");
             return;
         }
 
         reg_uri = json_response.as_object().at("url").as_string().c_str();
-        std::cout << "Receive Token = " << reg_uri << std::endl;
+        ast_log(LOG_NOTICE, "WEBSOCKET Receive Token = %s\n", reg_uri.c_str());
 
         ws.close(websocket::close_code::normal); // 인증 후 연결 닫기
 
@@ -150,9 +152,9 @@ void register_and_recognize_stt(int file_mode) {
                 boost::json::value response = boost::json::parse(result);
 
                 if (response.as_object().at("endpoint").as_bool()) {
-                    std::cout << "EndPoint Detected: " << result << std::endl;
+                    ast_log(LOG_NOTICE, "WEBSOCKET EndPoint Detected: %s\n", result.c_str());
                 } else {
-                    std::cout << "Result: " << result << std::endl;
+                    ast_log(LOG_NOTICE, "WEBSOCKET Result: %s\n", result.c_str());
                 }
                 rx_buffer.consume(rx_buffer.size());  // 버퍼 비우기
             }
@@ -162,7 +164,7 @@ void register_and_recognize_stt(int file_mode) {
         }
 
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        ast_log(LOG_ERROR, "WEBSOCKET Error: %s\n", e.what());
     }
 }
 
@@ -176,30 +178,30 @@ extern "C" void websocket_client_send(const char *data, size_t len, int is_rx) {
         if (is_rx) {
             ws_rx.async_write(buffer, [](beast::error_code ec, std::size_t) {
                 if (ec) {
-                    std::cerr << "Write error: " << ec.message() << std::endl;
+                    ast_log(LOG_ERROR, "WEBSOCKET RX Write error: %s\n", ec.message().c_str());
                 }
             });
         } else {
             ws_tx.async_write(buffer, [](beast::error_code ec, std::size_t) {
                 if (ec) {
-                    std::cerr << "Write error: " << ec.message() << std::endl;
+                    ast_log(LOG_ERROR, "WEBSOCKET TX Write error: %s\n", ec.message().c_str());
                 }
             });
         }
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        ast_log(LOG_ERROR, "WEBSOCKET Error: %s\n", e.what());
     }
 }
 
 extern "C" void websocket_client_close() {
     ws_rx.async_close(websocket::close_code::normal, [](beast::error_code ec) {
         if (ec) {
-            std::cerr << "Close error: " << ec.message() << std::endl;
+            ast_log(LOG_ERROR, "WEBSOCKET RX Close error: %s\n", ec.message().c_str());
         }
     });
     ws_tx.async_close(websocket::close_code::normal, [](beast::error_code ec) {
         if (ec) {
-            std::cerr << "Close error: " << ec.message() << std::endl;
+            ast_log(LOG_ERROR, "WEBSOCKET TX Close error: %s\n", ec.message().c_str());
         }
     });
 }
