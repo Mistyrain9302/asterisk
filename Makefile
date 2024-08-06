@@ -1152,20 +1152,28 @@ FORCE:
 
 # Boost 라이브러리 경로 추가
 BOOST_INCLUDES := -I/usr/local/include
-BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lssl -lcrypto
+BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lboost_json -lboost_beast -lssl -lcrypto
 
 # CXX 변수를 g++로 설정
 CXX := g++
-CXXFLAGS := -std=c++11
+CXXFLAGS := -std=c++11 -fPIC
 
 # OBJS 정의 부분에 추가
 OBJS = \
-    websocket_client.o 
+    websocket_client.o \
+    app_websocket.o
 
 # websocket_client.o 규칙 추가
 websocket_client.o: websocket_client.cpp websocket_client.h
 	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
 
+# app_websocket.o 규칙 추가
+app_websocket.o: app_websocket.c
+	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c app_websocket.c
+
 # 타겟 파일 링크 시 Boost 라이브러리 추가
-$(TARGET): $(OBJS)
-	$(CXX) $(LDFLAGS) $(BOOST_LIBS) -o $@ $^
+libwebsocket_client.so: $(OBJS)
+	$(CXX) -shared $(LDFLAGS) $(BOOST_LIBS) -o $@ $^
+
+# 기본 타겟을 libwebsocket_client.so로 설정
+all: libwebsocket_client.so
