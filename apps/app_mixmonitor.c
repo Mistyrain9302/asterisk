@@ -60,6 +60,8 @@
 #include "asterisk/beep.h"
 #include <stddef.h>  // size_t 정의를 위한 헤더 파일 추가
 
+#include "websocket_client.h" 
+
 /*** DOCUMENTATION
 	<application name="MixMonitor" language="en_US">
 		<synopsis>

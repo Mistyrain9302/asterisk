@@ -1,8 +1,10 @@
+#define AST_MODULE_SELF_SYM __internal_self
 #include "asterisk.h"
 #include <asterisk/module.h>
 #include <asterisk/logger.h>
 #include <asterisk/channel.h>
 #include <stddef.h> // size_t 정의를 위한 헤더 파일 추가
+#include "websocket_client.h" 
 
 // C++ 함수 선언
 #ifdef __cplusplus
@@ -35,4 +37,7 @@ static int unload_module(void) {
 AST_MODULE_INFO(ASTERISK_GPL_KEY, AST_MODFLAG_DEFAULT, "WebSocket Module",
     .load = init_websocket,
     .unload = unload_module,
-);
+    .reload = NULL,
+    .load_pri = 0,
+    .support_level = 1
+)
