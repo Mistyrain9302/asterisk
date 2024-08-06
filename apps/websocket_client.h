@@ -1,7 +1,7 @@
 #ifndef WEBSOCKET_CLIENT_H
 #define WEBSOCKET_CLIENT_H
 
-#include <cstddef> // size_t 정의를 위한 헤더 파일 추가
+#include <stddef.h> // size_t 정의를 위한 헤더 파일 추가
 #include <string>
 
 extern "C" {

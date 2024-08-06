@@ -1,4 +1,3 @@
-#define AST_MODULE_SELF_SYM __internal_self
 #include "asterisk.h"
 #include <asterisk/module.h>
 #include <asterisk/logger.h>
