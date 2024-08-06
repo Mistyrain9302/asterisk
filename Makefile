@@ -1164,12 +1164,12 @@ OBJS = \
     app_websocket.o
 
 # websocket_client.o 규칙 추가
-websocket_client.o: websocket_client.cpp websocket_client.h
-	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
+websocket_client.o: apps/websocket_client.cpp apps/websocket_client.h
+	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c apps/websocket_client.cpp -o $@
 
 # app_websocket.o 규칙 추가
-app_websocket.o: app_websocket.c
-	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c app_websocket.c
+app_websocket.o: apps/app_websocket.c
+	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c apps/app_websocket.c -o $@
 
 # 타겟 파일 링크 시 Boost 라이브러리 추가
 libwebsocket_client.so: $(OBJS)

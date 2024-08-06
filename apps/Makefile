@@ -9,8 +9,6 @@
 # the GNU General Public License
 #
 
-# 앱 디렉토리의 Makefile 수정
-
 -include $(ASTTOPDIR)/menuselect.makeopts $(ASTTOPDIR)/menuselect.makedeps
 
 MODULE_PREFIX=app
