@@ -52,6 +52,7 @@ CXXFLAGS := -std=c++11
 websocket_client.o: websocket_client.cpp websocket_client.h
 	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
 
+# app_websocket와 app_mixmonitor 의존성 처리
 app_websocket.o: websocket_client.o
 
 app_mixmonitor.o: app_websocket.o

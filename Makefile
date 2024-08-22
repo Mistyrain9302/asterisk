@@ -1150,9 +1150,33 @@ FORCE:
 # This only stops targets within the root Makefile from building in parallel.
 .NOTPARALLEL:
 
+
+Makefile의 수정 방향을 정리해보겠습니다. 루트 디렉토리의 Makefile과 apps 디렉토리의 Makefile에서 수행할 작업을 각각 설명하겠습니다.
+
+1. 루트 디렉토리의 Makefile 수정
+루트 디렉토리의 Makefile은 최종적으로 libwebsocket_client.so 라이브러리를 생성합니다. 이 라이브러리는 websocket_client.cpp 및 관련 Boost 라이브러리 의존성을 처리합니다.
+
+루트 Makefile 수정 내용:
+
+Boost 라이브러리 설정 추가:
+
+BOOST_INCLUDES와 BOOST_LIBS를 설정합니다.
+C++ 컴파일러 설정 추가:
+
+CXX와 CXXFLAGS 설정을 추가합니다.
+OBJS 정의:
+
+OBJS에 필요한 오브젝트 파일을 추가합니다.
+웹소켓 관련 타겟 규칙 추가:
+
+websocket_client.o, app_websocket.o 생성 규칙 추가.
+최종 타겟인 libwebsocket_client.so를 만듭니다.
+루트 디렉토리 Makefile 수정 사항
+makefile
+코드 복사
 # Boost 라이브러리 경로 추가
 BOOST_INCLUDES := -I/usr/local/include
-BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lboost_json -lboost_beast -lssl -lcrypto
+BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lssl -lcrypto
 
 # CXX 변수를 g++로 설정
 CXX := g++

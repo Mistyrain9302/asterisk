@@ -2,7 +2,6 @@
 #define WEBSOCKET_CLIENT_H
 
 #include <stddef.h> // size_t 정의를 위한 헤더 파일 추가
-#include <string>
 
 extern "C" {
     void websocket_client_connect(void);
