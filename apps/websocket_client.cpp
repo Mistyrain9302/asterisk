@@ -7,17 +7,11 @@
 #include <boost/asio/ssl/stream.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
-#include <boost/json.hpp>
+#include <nlohmann/json.hpp> // JSON 라이브러리 사용 부분
 #include <iostream>
 #include <fstream>
 #include <ctime>
 #include <sstream>
-
-using tcp = boost::asio::ip::tcp;
-namespace ssl = boost::asio::ssl;
-namespace websocket = boost::beast::websocket;
-namespace beast = boost::beast;
-namespace net = boost::asio;
 
 // 로그 파일 경로
 const std::string log_file_path = "/var/log/asterisk/websocket_client.log";
@@ -37,6 +31,12 @@ void log_message(const std::string& message) {
         std::cerr << "Unable to open log file: " << log_file_path << std::endl;
     }
 }
+
+using tcp = boost::asio::ip::tcp;
+namespace ssl = boost::asio::ssl;
+namespace websocket = boost::beast::websocket;
+namespace beast = boost::beast;
+namespace net = boost::asio;
 
 static net::io_context ioc;
 static ssl::context ctx{ssl::context::sslv23_client};
@@ -74,8 +74,8 @@ void on_read(beast::error_code ec, std::size_t bytes_transferred, beast::flat_bu
         log_message("Read error: " + ec.message());
     } else {
         std::string response = beast::buffers_to_string(buffer.data());
-        boost::json::value json_response = boost::json::parse(response);
-        if (json_response.as_object().contains("endpoint") && json_response.as_object().at("endpoint").as_bool()) {
+        nlohmann::json json_response = nlohmann::json::parse(response); // JSON 파싱 부분
+        if (json_response.contains("endpoint") && json_response["endpoint"].get<bool>()) {
             log_message("EndPoint Detected: " + response);
         } else {
             log_message("Result: " + response);
@@ -116,7 +116,7 @@ void register_and_recognize_stt(int file_mode) {
         websocket::stream<beast::ssl_stream<tcp::socket>> ws(std::move(ssl_stream));
         ws.handshake(auth_host + ":" + auth_port, auth_path); // 웹소켓 핸드셰이크
 
-        boost::json::object auth_message;
+        nlohmann::json auth_message; // JSON 메시지 생성 부분
         auth_message["AUTH_KEY"] = auth_key;
         auth_message["DATA_FORMAT"] = data_format;
         auth_message["RESOLUTION"] = resolution;
@@ -124,7 +124,7 @@ void register_and_recognize_stt(int file_mode) {
         auth_message["DATA_TYPE"] = data_type;
         auth_message["ENDIAN"] = endian;
 
-        ws.write(net::buffer(boost::json::serialize(auth_message))); // 인증 메시지 전송
+        ws.write(net::buffer(auth_message.dump())); // 인증 메시지 전송
 
         beast::flat_buffer buffer;
         ws.read(buffer); // 응답 읽기
@@ -132,14 +132,14 @@ void register_and_recognize_stt(int file_mode) {
         std::string response = beast::buffers_to_string(buffer.data());
         log_message("Result1: " + response);
 
-        boost::json::value json_response = boost::json::parse(response);
+        nlohmann::json json_response = nlohmann::json::parse(response); // JSON 파싱 부분
 
-        if(json_response.as_object().at("status").as_string() != "AUTHENTICATED") {
+        if(json_response["status"].get<std::string>() != "AUTHENTICATED") {
             log_message("AUTHENTICATION failed");
             return;
         }
 
-        reg_uri = json_response.as_object().at("url").as_string().c_str();
+        reg_uri = json_response["url"].get<std::string>();
         log_message("Receive Token = " + reg_uri);
 
         ws.close(websocket::close_code::normal); // 인증 후 연결 닫기
@@ -168,9 +168,9 @@ void register_and_recognize_stt(int file_mode) {
                 ws_rx.write(net::buffer(chunk.data(), file.gcount())); // 파일 데이터를 웹소켓으로 전송
                 ws_rx.read(rx_buffer); // 응답 읽기
                 std::string result = beast::buffers_to_string(rx_buffer.data());
-                boost::json::value response = boost::json::parse(result);
+                nlohmann::json response = nlohmann::json::parse(result); // JSON 파싱 부분
 
-                if (response.as_object().at("endpoint").as_bool()) {
+                if (response["endpoint"].get<bool>()) {
                     log_message("EndPoint Detected: " + result);
                 } else {
                     log_message("Result: " + result);

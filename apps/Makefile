@@ -42,21 +42,27 @@ endif
 
 # Boost 라이브러리 경로 추가
 BOOST_INCLUDES := -I/usr/local/include
-BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lssl -lcrypto
+BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lboost_json -lssl -lcrypto
 
 # CXX 변수를 g++로 설정
 CXX := g++
-CXXFLAGS := -std=c++11
+CFLAGS := -fPIC -I/usr/include/asterisk
+CXXFLAGS := -std=c++11 -fPIC $(BOOST_INCLUDES)
 
-# websocket_client.o를 추가합니다.
+# OBJS 정의 부분에 추가
+OBJS = \
+    websocket_client.o \
+    app_websocket.o
+
+# websocket_client.o 규칙 추가
 websocket_client.o: websocket_client.cpp websocket_client.h
-	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c websocket_client.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # app_websocket와 app_mixmonitor 의존성 처리
 app_websocket.o: websocket_client.o
 
 app_mixmonitor.o: app_websocket.o
 
-# 타겟 파일 링크 시 Boost 라이브러리 추가
-$(TARGET): $(OBJS)
-	$(CXX) $(LDFLAGS) $(BOOST_LIBS) -o $@ $^
+# app_websocket.so 타겟 정의
+app_websocket.so: $(OBJS)
+	$(CXX) -shared $(LDFLAGS) $(BOOST_LIBS) -o $@ $(OBJS)

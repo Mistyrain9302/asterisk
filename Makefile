@@ -1153,28 +1153,57 @@ FORCE:
 
 # Boost 라이브러리 경로 추가
 BOOST_INCLUDES := -I/usr/local/include
-BOOST_LIBS := -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lboost_json -lboost_beast -lssl -lcrypto
+BOOST_LIBS := /usr/local/lib/libboost_json.so.1.85.0 -L/usr/local/lib -lboost_system -lboost_thread -lboost_filesystem -lssl -lcrypto
+
+# CXX 변수를 g++로 설정
+# CXX := g++
+# CFLAGS += -I/usr/include/asterisk
+# CXXFLAGS += -std=c++11 -fPIC
+# CXXFLAGS += -I/usr/include/asterisk
 
 # CXX 변수를 g++로 설정
 CXX := g++
-CXXFLAGS := -std=c++11 -fPIC
+CFLAGS := -fPIC -I/usr/include/asterisk
+CXXFLAGS := -std=c++11 -fPIC $(BOOST_INCLUDES)
 
 # OBJS 정의 부분에 추가
 OBJS = \
-    websocket_client.o \
-    app_websocket.o
+    apps/websocket_client.o \
+    apps/app_websocket.o \
+    apps/app_mixmonitor.o
+
+# 디버깅을 위해 경로 정보 출력
+print-debug:
+	@echo "CXX: $(CXX)"
+	@echo "CFLAGS: $(CFLAGS)"
+	@echo "CXXFLAGS: $(CXXFLAGS)"
+	@echo "OBJS: $(OBJS)"
 
 # websocket_client.o 규칙 추가
 websocket_client.o: apps/websocket_client.cpp apps/websocket_client.h
-	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c apps/websocket_client.cpp -o $@
+	@echo "Compiling websocket_client.cpp..."
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# app_websocket.o 규칙 추가
+# app_websocket.o 규칙 수정
 app_websocket.o: apps/app_websocket.c
-	$(CXX) $(CXXFLAGS) $(BOOST_INCLUDES) -c apps/app_websocket.c -o $@
+	@echo "Compiling app_websocket.c..."
+	gcc $(CFLAGS) -c $< -o $@
 
 # 타겟 파일 링크 시 Boost 라이브러리 추가
 libwebsocket_client.so: $(OBJS)
+	@echo "Linking $(OBJS) into libwebsocket_client.so..."
+	$(CXX) -shared $(LDFLAGS) $(BOOST_LIBS) -Wl,-rpath,/usr/local/lib -o $@ $(OBJS)
+# $(CXX) -shared $(LDFLAGS) $(BOOST_LIBS) -o $@ $(OBJS)
+
+# app_websocket.so 타겟 추가
+app_websocket.so: apps/app_websocket.o apps/websocket_client.o
+	@echo "Linking $(OBJS) into app_websocket.so..."
 	$(CXX) -shared $(LDFLAGS) $(BOOST_LIBS) -o $@ $^
 
-# 기본 타겟을 libwebsocket_client.so로 설정
-all: libwebsocket_client.so
+# 타겟 파일 링크 시 Boost 라이브러리 및 websocket_client.o 추가
+app_mixmonitor.so: apps/app_mixmonitor.o apps/websocket_client.o
+	@echo "Linking $(OBJS) into app_mixmonitor.so..."
+	$(CXX) -shared $(LDFLAGS) $(BOOST_LIBS) -o $@ $^
+
+# 기본 타겟을 설정
+all: print-debug libwebsocket_client.so app_websocket.so

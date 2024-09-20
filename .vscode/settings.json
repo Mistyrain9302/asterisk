@@ -1,7 +1,13 @@
 {
     "files.associations": {
+        "*.embeddedhtml": "html",
         "ostream": "cpp",
         "system_error": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "websocket_client.h": "c",
+        "asterisk.h": "c",
+        "module.h": "c",
+        "logger.h": "c",
+        "channel.h": "c"
     }
 }

@@ -1,0 +1,214 @@
+yeonwoo-VirtualBox*CLI> core show help
+!                              -- Execute a shell command
+acl show                       -- Show a named ACL or list all named ACLs
+aoc set debug                  -- enable cli debugging of AOC messages
+bridge kick                    -- Kick a channel from a bridge
+bridge show all                -- List all bridges
+bridge show                    -- Show information about a bridge
+bridge technology show         -- List registered bridge technologies
+bridge technology {suspend|unsuspend} -- Suspend/unsuspend a bridge technology
+cc cancel [core|all]           -- Kill a CC transaction
+cc report status               -- Reports CC stats
+cdr set debug [on|off]         -- Enable debugging in the CDR engine
+cdr show active                -- Display active CDRs for channels
+cdr show status                -- Display the CDR status
+cdr submit                     -- Posts all pending batched CDR data
+cel show status                -- Display the CEL status
+channel request hangup         -- Request a hangup on a given channel
+cli check permissions          -- Try a permissions config for a user
+cli reload permissions         -- Reload CLI permissions config
+cli show permissions           -- Show CLI permissions
+confbridge kick                -- Kick participants out of conference bridges.
+confbridge list                -- List conference bridges and participants.
+confbridge lock                -- Lock a conference.
+confbridge mute                -- Mute participants.
+confbridge record start        -- Start recording a conference
+confbridge record stop         -- Stop recording a conference.
+confbridge show menu           -- Show a conference menu
+confbridge show menus          -- Show a list of conference menus
+confbridge show profile bridge -- Show a conference bridge profile.
+confbridge show profile bridges -- Show a list of conference bridge profiles.
+confbridge show profile user   -- Show a conference user profile.
+confbridge show profile users  -- Show a list of conference user profiles.
+confbridge unlock              -- Unlock a conference.
+confbridge unmute              -- Unmute participants.
+config list                    -- Show all files that have loaded a configuration file
+config reload                  -- Force a reload on modules using a particular configuration file
+config show help               -- Show configuration help for a module
+core abort shutdown            -- Cancel a running shutdown
+core clear profile             -- Clear profiling info
+core ping taskprocessor        -- Ping a named task processor
+core reload                    -- Global reload
+core restart gracefully        -- Restart Asterisk gracefully
+core restart now               -- Restart Asterisk immediately
+core restart when convenient   -- Restart Asterisk at empty call volume
+core set debug channel         -- Enable/disable debugging on a channel
+core set debug                 -- Set level of debug chattiness
+core set verbose               -- Set level of verbose chattiness
+core show applications [like|describing] -- Shows registered dialplan applications
+core show application          -- Describe a specific dialplan application
+core show calls [uptime]       -- Display information on calls
+core show channels [concise|verbose|count] -- Display information on channels
+core show channel              -- Display information on a specific channel
+core show channeltypes         -- List available channel types
+core show channeltype          -- Give more details on that channel type
+core show codecs [audio|video|image|text] -- Displays a list of registered codecs
+core show codec                -- Shows a specific codec
+core show config mappings      -- Display config mappings (file names to config engines)
+core show file formats         -- Displays file formats
+core show functions [like]     -- Shows registered dialplan functions
+core show function             -- Describe a specific dialplan function
+core show hanguphandlers all   -- Show hangup handlers of all channels
+core show hanguphandlers       -- Show hangup handlers of a specified channel
+core show help                 -- Display help list, or specific help on a command
+core show hints                -- Show dialplan hints
+core show hint                 -- Show dialplan hint
+core show image formats        -- Displays image formats
+core show license              -- Show the license(s) for this copy of Asterisk
+core show profile              -- Display profiling info
+core show settings             -- Show some core settings
+core show sounds               -- Shows available sounds
+core show sound                -- Shows details about a specific sound
+core show switches             -- Show alternative switches
+core show sysinfo              -- Show System Information
+core show taskprocessors       -- List instantiated task processors and statistics
+core show threads              -- Show running threads
+core show translation          -- Display translation matrix
+core show uptime [seconds]     -- Show uptime information
+core show version              -- Display version info
+core show warranty             -- Show the warranty (if any) for this copy of Asterisk
+core stop gracefully           -- Gracefully shut down Asterisk
+core stop now                  -- Shut down Asterisk immediately
+core stop when convenient      -- Shut down Asterisk at empty call volume
+core waitfullybooted           -- Wait for Asterisk to be fully booted
+database del                   -- Removes database key/value
+database deltree               -- Removes database keytree/values
+database get                   -- Gets database value
+database put                   -- Adds/updates database value
+database query                 -- Run a user-specified query on the astdb
+database show                  -- Shows database contents
+database showkey               -- Shows database contents
+devstate change                -- Change a custom device state
+devstate list                  -- List currently known custom device states
+dialplan add extension         -- Add new extension into context
+dialplan add ignorepat         -- Add new ignore pattern
+dialplan add include           -- Include context in other context
+dialplan debug                 -- Show fast extension pattern matching data structures
+dialplan reload                -- Reload extensions and *only* extensions
+dialplan remove context        -- Remove a specified context
+dialplan remove extension      -- Remove a specified extension
+dialplan remove ignorepat      -- Remove ignore pattern from context
+dialplan remove include        -- Remove a specified include from context
+dialplan set chanvar           -- Set a channel variable
+dialplan set extenpatternmatchnew false -- Use the Old extension pattern matching algorithm.
+dialplan set extenpatternmatchnew true -- Use the New extension pattern matching algorithm.
+dialplan set global            -- Set global dialplan variable
+dialplan show                  -- Show dialplan
+dialplan show chanvar          -- Show channel variables
+dialplan show globals          -- Show global dialplan variables
+dnsmgr refresh                 -- Performs an immediate refresh
+dnsmgr reload                  -- Reloads the DNS manager configuration
+dnsmgr status                  -- Display the DNS manager status
+features show                  -- Lists configured features
+group show channels            -- Display active channels with group(s)
+http show status               -- Display HTTP server status
+indication add                 -- Add the given indication to the country
+indication remove              -- Remove the given indication from the country
+indication show                -- Display a list of all countries/indications
+local show channels            -- List status of local channels
+logger add channel             -- Adds a new logging channel
+logger mute                    -- Toggle logging output to a console
+logger reload                  -- Reopens the log files
+logger remove channel          -- Removes a logging channel
+logger rotate                  -- Rotates and reopens the log files
+logger set level {DEBUG|NOTICE|WARNING|ERROR|VERBOSE|DTMF} {on|off} -- Enables/Disables a specific logging level for this console
+logger show channels           -- List configured log channels
+malloc trim                    -- Return excess memory to the OS
+manager reload                 -- Reload manager configurations
+manager set debug [on|off]     -- Show, enable, disable debugging of the manager code
+manager show command           -- Show a manager interface command
+manager show commands          -- List manager interface commands
+manager show connected         -- List connected manager interface users
+manager show eventq            -- List manager interface queued events
+manager show events            -- List manager interface events
+manager show event             -- Show a manager interface event
+manager show settings          -- Show manager global settings
+manager show users             -- List configured manager users
+manager show user              -- Display information on a specific manager user
+media cache create             -- Create an item in the media cache
+media cache delete             -- Remove an item from the media cache
+media cache refresh            -- Refresh an item in the media cache
+media cache show all           -- Show all items in the media cache
+media cache show               -- Show a single item in the media cache
+module load                    -- Load a module by name
+module reload                  -- Reload configuration for a module
+module show [like]             -- List modules and info
+module unload                  -- Unload a module by name
+moh reload                     -- Reload MusicOnHold
+moh show classes               -- List MusicOnHold classes
+moh show files                 -- List MusicOnHold file-based classes
+no debug channel               -- Disable debugging on channel(s)
+pjproject set log level {default|0|1|2|3|4|5|6} -- Set the maximum active pjproject logging level
+pjproject show buildopts       -- Show the compiled config of the pjproject in use
+pjproject show log level       -- Show the maximum active pjproject logging level
+pjproject show log mappings    -- Show pjproject to Asterisk log mappings
+pjsip dump endpt               -- Dump the res_pjsip endpt internals
+pjsip list aors                -- List PJSIP Aors
+pjsip list auths               -- List PJSIP Auths
+pjsip list channels            -- List PJSIP Channels
+pjsip list ciphers             -- List available OpenSSL cipher names
+pjsip list contacts            -- List PJSIP Contacts
+pjsip list endpoints           -- List PJSIP Endpoints
+pjsip list identifies          -- List PJSIP Identifies
+pjsip list registrations       -- List PJSIP Registrations
+pjsip list subscriptions {inbound|outbound} [like] -- List active inbound/outbound subscriptions
+pjsip list transports          -- List PJSIP Transports
+pjsip qualify                  -- Send an OPTIONS request to a PJSIP endpoint
+pjsip reload qualify aor       -- Synchronize the PJSIP Aor qualify options
+pjsip reload qualify endpoint  -- Synchronize the qualify options for all Aors on the PJSIP endpoint
+pjsip send notify              -- Send a NOTIFY request to a SIP endpoint
+pjsip send register            -- Registers an outbound registration target
+pjsip send unregister          -- Unregisters outbound registration target
+pjsip set logger {on|off|host} -- Enable/Disable PJSIP Logger Output
+pjsip show aors                -- Show PJSIP Aors
+pjsip show aor                 -- Show PJSIP Aor
+pjsip show auths               -- Show PJSIP Auths
+pjsip show auth                -- Show PJSIP Auth
+pjsip show channels            -- Show PJSIP Channels
+pjsip show channel             -- Show PJSIP Channel
+pjsip show channelstats        -- Show PJSIP Channel Stats
+pjsip show contacts            -- Show PJSIP Contacts
+pjsip show contact             -- Show PJSIP Contact
+pjsip show endpoints           -- Show PJSIP Endpoints
+pjsip show endpoint            -- Show PJSIP Endpoint
+pjsip show identifiers         -- List registered endpoint identifiers
+pjsip show identifies          -- Show PJSIP Identifies
+pjsip show identify            -- Show PJSIP Identify
+pjsip show qualify aor         -- Show the PJSIP Aor current qualify options
+pjsip show qualify endpoint    -- Show the current qualify options for all Aors on the PJSIP endpoint
+pjsip show registrations       -- Show PJSIP Registrations
+pjsip show registration        -- Show PJSIP Registration
+pjsip show scheduled_tasks     -- Show all scheduled tasks
+pjsip show settings            -- Show global and system configuration options
+pjsip show subscription {inbound|outbound} -- Show active subscription details
+pjsip show subscriptions {inbound|outbound} [like] -- Show active inbound/outbound subscriptions
+pjsip show transports          -- Show PJSIP Transports
+pjsip show transport           -- Show PJSIP Transport
+pjsip show unidentified_requests -- Show PJSIP Unidentified Requests
+pjsip show version             -- Show the version of pjproject in use
+rtcp set debug {on|off|ip}     -- Enable/Disable RTCP debugging
+rtcp set stats {on|off}        -- Enable/Disable RTCP stats
+rtp set debug {on|off|ip}      -- Enable/Disable RTP debugging
+say load [new|old]             -- Set or show the say mode
+stun set debug {on|off}        -- Enable/Disable STUN debugging
+timing test                    -- Run a timing test
+udptl set debug {on|off|ip}    -- Enable/Disable UDPTL debugging
+udptl show config              -- Show UDPTL config options
+voicemail reload               -- Reload voicemail configuration
+voicemail show aliases         -- List mailbox aliases
+voicemail show users [for]     -- List defined voicemail boxes
+voicemail show zones           -- List zone message formats
+xmldoc dump                    -- Dump the XML docs to the specified file
+yeonwoo-VirtualBox*CLI> core show help | grep module
+No such command '| grep module'.
+
